@@ -14,34 +14,23 @@ lerlc(Config, _AppFile) ->
     ErlOpts = rebar_config:get(Config, erl_opts, []),
     SrcDirs = get_src_dirs(ErlOpts),
     CompilerOptions = get_compiler_options(ErlOpts),
-    io:format("SrcDirs is ~p~n", [SrcDirs]),
-    io:format("CompilerOptions is ~p~n", [CompilerOptions]),
-    Files = [filelib:wildcard(X ++ "/*.lerl") || X <- SrcDirs],
-    io:format("Files is ~p~n", [Files]),
-    [ok = literate_compile(X) || X <- Files],
+    Files = [filelib:wildcard(X ++ "/*.erl.md") || X <- SrcDirs],
+    [ok = literate_compile(X, CompilerOptions) || X <- Files],
     ok.
 
-literate_compile(File) ->
+literate_compile(File, CompilerOptions) ->
     CWD = rebar_utils:get_cwd(),
-    io:format("CWD is ~p~n", [CWD]),
     {ok, Lines} = read_lines(CWD ++ "/" ++ File),
-    Erlang = make_erlang(Lines),
-    io:format("Erlang is ~p~n", [Erlang]),
-    {ok, ErlTokens, _} = erl_scan:string(Erlang),
-    io:format("ErlTokens is ~p~n", [ErlTokens]),
-    {ok, ErlAbsForms} = erl_parse:parse_form(ErlTokens),
-    io:format("ErlAbsForms is ~p~n", [ErlAbsForms]),
-    %% fix up options, yeah
-    ok = compile:forms(ErlAbsForms),
-    ok.
+    Source = make_erlang_source(Lines),
+    ok = write_source_and_compile(Source, File, CompilerOptions).
 
-make_erlang(Lines) ->
+make_erlang_source(Lines) ->
     make_erl2(Lines, comment, []).
 
 make_erl2([], _Type, Acc) ->
     lists:flatten(lists:reverse(Acc));
 make_erl2(["```erlang" ++ _Rest | T], comment, Acc) ->
-    make_erl3(T, erlang, ["\n" | Acc]);
+    make_erl3(T, erlang, ["%%%```erlang\n" | Acc]);
 make_erl2([H | T], comment, Acc) ->
     make_erl2(T, comment, ["%%% " ++ H | Acc]).
 
@@ -71,7 +60,6 @@ read_l2(Id, Acc) ->
     end.
 
 get_src_dirs(ErlOpts) ->
-    io:format("ErlOpts is ~p~n", [ErlOpts]),
     case proplists:get_value(src_dirs, ErlOpts) of
         undefined -> ["src"];
         SrcDirs   -> SrcDirs
@@ -79,3 +67,25 @@ get_src_dirs(ErlOpts) ->
 
 get_compiler_options(ErlOpts) ->
     proplists:delete(src_dirs, ErlOpts).
+
+write_source_and_compile(Source, File, CompilerOptions) ->
+    File2 = filename:basename(filename:rootname(File)),
+    Dir = filename:dirname(File),
+    NewCompOpts = adjust_output_dirs(CompilerOptions, Dir),
+    Dir2 = Dir  ++ "/.erl/",
+    ok = filelib:ensure_dir(Dir2),
+    ok = file:write_file(Dir2 ++ File2, Source),
+    {ok, _} = compile:file(Dir2 ++ File2, NewCompOpts),
+    ok.
+
+adjust_output_dirs(CompilerOptions, Dir) ->
+
+    case proplists:is_defined(outdirs, CompilerOptions) of
+        false ->
+            OutputDir = "ebin/",
+            filelib:ensure_dir(OutputDir),
+            [{outdir, OutputDir} | CompilerOptions];
+        true  ->
+            CompilerOptions
+    end.
+
