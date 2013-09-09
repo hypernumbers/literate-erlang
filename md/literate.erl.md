@@ -1,3 +1,4 @@
+
 literate.lerl by Gordon Guthrie <gordonguthrie@vixo.com>
 
 This is a test file for writing literate erlang
@@ -25,6 +26,7 @@ Let us define some constants that we will use
     -define(MEGA, 1000000000000).
     -define(SEC,  1000000).
 ```
+
 
 Finally the two functions
 

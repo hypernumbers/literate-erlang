@@ -29,45 +29,43 @@ markup_to_literate(File) ->
     ok = write_source(Source, File).
 
 make_markdown_source(Lines) ->
-    make_md2(Lines, erlang, []).
+    make_markdown(Lines, []).
 
-make_md2([], _Type, Acc) ->
+make_markdown([], Acc) ->
     lists:flatten(lists:reverse(Acc));
 %%% preserve (and normalise) the erlang markups
 %% order matters!
-make_md2(["%%%```erlang" ++ _Rest | T], comment, Acc) ->
-    make_md3(T, erlang, ["%%%```erlang\n" | Acc]);
-make_md2(["%%```erlang" ++ _Rest | T], comment, Acc) ->
-    make_md3(T, erlang, ["%%%```erlang\n" | Acc]);
-make_md2(["%```erlang" ++ _Rest | T], comment, Acc) ->
-    make_md3(T, erlang, ["%%%```erlang\n" | Acc]);
+make_markdown(["%%%```erlang" ++ _Rest | T], Acc) ->
+    make_markdown(T, ["%%%```erlang\n" | Acc]);
+make_markdown(["%%```erlang" ++ _Rest | T], Acc) ->
+    make_markdown(T, ["%%%```erlang\n" | Acc]);
+make_markdown(["%```erlang" ++ _Rest | T], Acc) ->
+    make_markdown(T, ["%%%```erlang\n" | Acc]);
 %% order matters!
-make_md2(["%%%" ++ Rest | T], erlang, Acc) ->
-    make_md3(T, markdown, [Rest | Acc]);
-make_md2(["%%" ++ Rest | T], erlang, Acc) ->
-    make_md3(T, markdown, [Rest | Acc]);
-make_md2(["%" ++ Rest | T], erlang, Acc) ->
-    make_md3(T, markdown, [Rest | Acc]);
-make_md2(["    " ++ Rest | T] = L, erlang, Acc) ->
-    make_md3(L, markdown, Acc);
-make_md2([H | T], erlang, Acc) ->
-    make_md2(T, erlang, [H | Acc]).
+make_markdown(["%%%" ++ Rest | T], Acc) ->
+    make_markdown(T, [Rest | Acc]);
+make_markdown(["%%" ++ Rest | T], Acc) ->
+    make_markdown(T, [Rest | Acc]);
+make_markdown(["%" ++ Rest | T], Acc) ->
+    make_markdown(T, [Rest | Acc]);
+make_markdown(["\n" | T], Acc) ->
+    make_markdown(T, ["\n" | Acc]);
+make_markdown([H | T], Acc) ->
+    make_erlang([H | T], ["```erlang\n" | Acc]).
 
-make_md3([], _Type, Acc) ->
-    lists:flatten(lists:reverse(["%%%```" |  Acc]));
-make_md3(["\n" | T], markdown, Acc) ->
-    make_md3(T, markdown, ["\n" | Acc]);
-make_md3(["```" ++ _Rest | T], markdown, Acc) ->
-    make_md2(T, erlang, ["\n" | Acc]);
+make_erlang([], Acc) ->
+    lists:flatten(lists:reverse(["```\n" |  Acc]));
+make_erlang(["\n" | T], Acc) ->
+    make_erlang(T, ["\n" | Acc]);
 %% order matters!
-make_md3(["%%%" ++ Rest | T], markdown, Acc) ->
-    make_md3(T, markdown, [Rest | Acc]);
-make_md3(["%%" ++ Rest | T], markdown, Acc) ->
-    make_md3(T, markdown, [Rest | Acc]);
-make_md3(["%" ++ Rest | T], markdown, Acc) ->
-    make_md3(T, markdown, [Rest | Acc]);
-make_md3([H | T], markdown, Acc) ->
-    make_md2(T, erlang, ["    " ++ H | Acc]).
+make_erlang(["%%%" ++ Rest | T], Acc) ->
+    make_markdown(T, [Rest, "````\n" | Acc]);
+make_erlang(["%%" ++ Rest | T], Acc) ->
+    make_markdown(T, [Rest, "```\n" | Acc]);
+make_erlang(["%" ++ Rest | T], Acc) ->
+    make_markdown(T, [Rest, "```\n" | Acc]);
+make_erlang([H | T], Acc) ->
+    make_erlang(T, ["    " ++ H | Acc]).
 
 read_lines(File) ->
     case file:open(File, read) of

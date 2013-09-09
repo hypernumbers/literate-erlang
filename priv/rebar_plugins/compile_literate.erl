@@ -4,21 +4,21 @@
 %%%
 %%% @end
 %%% Created :  2 Sep 2013 by gordon@vixo.com
--module(lerlc).
+-module(compile_literate).
 
 -export([
-         lerlc/2
+         compile_literate/2
         ]).
 
-lerlc(Config, _AppFile) ->
+compile_literate(Config, _AppFile) ->
     ErlOpts = rebar_config:get(Config, erl_opts, []),
     SrcDirs = get_src_dirs(ErlOpts),
     CompilerOptions = get_compiler_options(ErlOpts),
-    Files = [filelib:wildcard(X ++ "/*.erl.md") || X <- SrcDirs],
-    [ok = literate_compile(X, CompilerOptions) || X <- Files],
+    Files = [filelib:wildcard(X ++ "/../md/*.erl.md") || X <- SrcDirs],
+    [ok = compile_file(X, CompilerOptions) || X <- lists:merge(Files)],
     ok.
 
-literate_compile(File, CompilerOptions) ->
+compile_file(File, CompilerOptions) ->
     CWD = rebar_utils:get_cwd(),
     {ok, Lines} = read_lines(CWD ++ "/" ++ File),
     Source = make_erlang_source(Lines),
@@ -75,7 +75,10 @@ write_source_and_compile(Source, File, CompilerOptions) ->
     Dir2 = Dir  ++ "/.erl/",
     ok = filelib:ensure_dir(Dir2),
     ok = file:write_file(Dir2 ++ File2, Source),
-    {ok, _} = compile:file(Dir2 ++ File2, NewCompOpts),
+    case compile:file(Dir2 ++ File2, NewCompOpts) of
+        {ok, _} -> ok;
+        error   -> io:format("Compile of ~p failed~n", [File])
+    end,
     ok.
 
 adjust_output_dirs(CompilerOptions, Dir) ->
