@@ -1,4 +1,4 @@
-<img scr='https://raw.github.com/hypernumbers/literate-erlang/master/priv/images/literate-erlang.png' />
+<img src='https://raw.github.com/hypernumbers/literate-erlang/master/priv/images/literate-erlang.png' />
 
 Literate Erlang
 ===============
@@ -50,10 +50,10 @@ This is the simplest possible implementation of a Literate Erlang compiler desig
 * it has no native Erlang markup compiler to turn it into html. There is an Erlang Markdown compiler (REF) which could be used to do that. It currently supports normal Markdown and not GitHub-flavoured markdown (or Markup, whatever happened to that?).
 
 The markdown emacs mode results in code that looks like this:
-<img scr='https://raw.github.com/hypernumbers/literate-erlang/master/priv/images/emacs-tooling-literate-erlang.png' />
+<img src='https://raw.github.com/hypernumbers/literate-erlang/master/priv/images/emacs-tooling-literate-erlang.png' />
 
 Sublime Text has a markdown mode which allows you to preview your markdown in a brower:
-<img scr='https://raw.github.com/hypernumbers/literate-erlang/master/priv/images/sublime-text-3-python-preview.png' />
+<img src='https://raw.github.com/hypernumbers/literate-erlang/master/priv/images/sublime-text-3-python-preview.png' />
 
 Users on Windows/Macs can have this preview rendered by GitHub for a higher level of fidelity.
 
