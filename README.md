@@ -17,9 +17,9 @@ Implementation
 
 The Literate Erlang, like Literate CoffeeScript is blocks of Markdown interpolated with indented blocks of Erlang. This particular dialect is aimed at GitHub-flavoured Markdown.
 
-The Literate Erlang compiler is implemented as a ``rebar`` plugin. For more details of ``rebar`` and its role in Erlang development are available here. (FIX).
+The Literate Erlang compiler is implemented as a ``rebar`` plugin. For more details of ``rebar`` and its role in Erlang development see https://github.com/rebar/rebar.
 
-Literate Erlang files end with ``.erl.md`` and are stored in the ``/md`` directory as part of a normal Erlang/OTP file structure (FIX).
+Literate Erlang files end with ``.erl.md`` and are stored in the ``/md`` directory alonside the ``/src`` directory  as part of a normal Erlang/OTP file structure. See the section on directory structure in the Erlang Design principles document http://www.erlang.org/doc/design_principles/applications.html#id73971
 
 The compiler is implemented as a rebar pluging - the source code for it is in the directory ``/priv/rebar_plugins``. (HOW DO WE USE IT AS rebar dependency?)
 
@@ -61,5 +61,3 @@ Contributing
 ------------
 
 Contributing is easy, fork and fire away.
-
-All contributors whose patches are accepted will receive one of these handsome T-shirts.
