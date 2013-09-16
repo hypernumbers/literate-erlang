@@ -72,7 +72,7 @@ write_source_and_compile(Source, File, CompilerOptions) ->
     File2 = filename:basename(filename:rootname(File)),
     Dir = filename:dirname(File),
     NewCompOpts = adjust_output_dirs(CompilerOptions, Dir),
-    Dir2 = Dir  ++ "/.erl/",
+    Dir2 = Dir  ++ "/../src/",
     ok = filelib:ensure_dir(Dir2),
     ok = file:write_file(Dir2 ++ File2, Source),
     case compile:file(Dir2 ++ File2, NewCompOpts) of

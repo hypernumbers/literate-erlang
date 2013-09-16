@@ -8,7 +8,7 @@ A compiler for Literate Erlang - inspired by Literate CoffeeScript.
 Why?
 ----
 
-The purpose of this compiler is to help new users unfamiliar with Erlang to more easily understand Erlang code on GitHub by supporting a literate style.
+The purpose of this compiler is to help new users unfamiliar with Erlang to more easily understand Erlang code **on GitHub** by supporting a literate style.
 
 This is intended to reduce the barriers to new users joining the community.
 
@@ -21,9 +21,20 @@ The Literate Erlang compiler is implemented as a ``rebar`` plugin. For more deta
 
 Literate Erlang files end with ``.erl.md`` and are stored in the ``/md`` directory alonside the ``/src`` directory  as part of a normal Erlang/OTP file structure. See the section on directory structure in the Erlang Design principles document http://www.erlang.org/doc/design_principles/applications.html#id73971
 
-The compiler is implemented as a rebar pluging - the source code for it is in the directory ``/priv/rebar_plugins``. (HOW DO WE USE IT AS rebar dependency?)
+The compiler is implemented as a rebar pluging - the source code for it is in the directory ``/priv/rebar_plugins``.
 
-The compiler works by transforming the Literate Erlang to plain erlang (it stashes the generated Erlang module in the ``md/.erl`` directory - and then compiling that.
+The compiler works by transforming the Literate Erlang to plain erlang and then compiling that.
+
+Usage
+-----
+
+Write your literate-erlang files in the directory ``/md`` naming them like ``mymodule.erl.md``
+
+Compile them to normal erlang using:
+``rebar literate-compile``
+
+and then compile that using:
+``rebar compile``
 
 Reverse Compiler
 ================
@@ -31,7 +42,7 @@ Reverse Compiler
 Why?
 ---
 
-The tooling for literate Erlang is immature and will likely to remain that way for a long term. The reverse compiler enables authors of Erlang to write using their normal tools - but publish the results to the communities as Literate Erlang.
+The tooling for literate Erlang is immature and will likely to remain that way for a long term. The reverse compiler enables authors of Erlang to write using their normal tools (ie emacs with erlang-mode or sublime-text with erlang mode) - but publish the results to their communities as Literate Erlang on GitHub.
 
 Implementation
 --------------
@@ -40,6 +51,19 @@ The reverse compiler implmented as a ``rebar`` plugin called ``markup``.
 
 This turns all files ending ``.erl`` in the ``src/`` into markdown files which are placed in an `md/` directory.
 
+Usage
+-----
+
+The canonical version under version control is the markdown files in the ``md/`` directory. So the first step is to compile them to erlang:
+``rebar compile_literate``
+
+Then copy the ``.erl`` files to the directory ``md/.erl`` and edit them there.
+
+The production of working beam files is then:
+``rebar markup``
+``rebar literate_compile``
+``rebar compile``
+
 Baby Steps
 ==========
 
@@ -47,7 +71,7 @@ This is the simplest possible implementation of a Literate Erlang compiler desig
 
 * It has bugs - for instance (at the moment) you can't embed blocks of other code in the Erlang file (an example would be a javascript example in a module that parses JSON).
 * it has no tooling - no SublimeText plugins or Emacs major modes - they would be nice
-* it has no native Erlang markup compiler to turn it into html. There is an Erlang Markdown compiler (REF) which could be used to do that. It currently supports normal Markdown and not GitHub-flavoured markdown (or Markup, whatever happened to that?).
+* it has no native Erlang markup compiler to turn it into html. There is an Erlang Markdown compiler (https://github.com/erlware/erlmarkdown) which could be used to do that. It currently supports normal Markdown and not GitHub-flavoured markdown.
 
 The markdown emacs mode results in code that looks like this:
 <img src='https://raw.github.com/hypernumbers/literate-erlang/master/priv/images/emacs-tooling-literate-erlang.png' />

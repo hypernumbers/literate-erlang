@@ -1,6 +1,6 @@
 %%% @author    Gordon Guthrie
 %%% @copyright (C) 2013, Gordon Guthrie
-%%% @doc       This is a rebar plugin for turning Erlang sourc
+%%% @doc       This is a rebar plugin for turning Erlang source
 %%%            into literate Erlang
 %%%
 %%% @end
@@ -14,7 +14,8 @@
 markup(Config, _AppFile) ->
     ErlOpts = rebar_config:get(Config, erl_opts, []),
     SrcDirs = get_src_dirs(ErlOpts),
-    Files = lists:merge([filelib:wildcard(X ++ "/*.erl") || X <- SrcDirs]),
+    Files = lists:merge([filelib:wildcard(X ++ "/../md/.erl/*.erl") || X <- SrcDirs]),
+    io:format("Files is ~p~n", [Files]),
     FilterFun = fun(X) ->
                         not filelib:is_dir(X)
                 end,
@@ -88,7 +89,7 @@ get_src_dirs(ErlOpts) ->
 
 write_source(Source, File) ->
     File2 = filename:basename(File) ++ ".md",
-    Dir = filename:dirname(File) ++ "/../md/",
+    Dir = filename:dirname(File) ++ "/../../md/",
     ok = filelib:ensure_dir(Dir),
     ok = file:write_file(Dir ++ File2, Source).
 
