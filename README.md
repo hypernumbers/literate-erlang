@@ -53,7 +53,7 @@ This turns all files ending ``.erl`` in the ``/src_md/.erl`` directory into mark
 Usage
 -----
 
-The canonical version under version control is the markdown files in the ``src_md/`` directory. So the first step is to compile them to erlang:
+The canonical version under version control is the markdown files in the ``/src_md`` and ``/include_md`` directories. So the first step is to compile them to erlang:
 ``rebar compile_literate``
 
 Then copy the ``.erl`` files to the directory ``src_md/.erl`` and the `..hrl`` files to ``/include_md/.hrl`` and edit them there.
