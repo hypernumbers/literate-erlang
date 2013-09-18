@@ -19,7 +19,9 @@ The Literate Erlang, like Literate CoffeeScript is blocks of Markdown interpolat
 
 The Literate Erlang compiler is implemented as a ``rebar`` plugin. For more details of ``rebar`` and its role in Erlang development see https://github.com/rebar/rebar.
 
-Literate Erlang files end with ``.erl.md`` or ``.hrl.md`` and are stored in the ``/src_md`` and ``/include_md`` directories alonside the ``/src`` and ``/include`` directories as part of a normal Erlang/OTP file structure. See the section on directory structure in the Erlang Design principles document http://www.erlang.org/doc/design_principles/applications.html#id73971
+Literate Erlang files end with ``.erl.md`` or ``.hrl.md`` and are stored in the ``/src_md`` and ``/include_md`` directories alonside the ``/src`` and ``/include`` directories as part of a normal Erlang/OTP file structure.
+
+Details of the normal erlang directory structure can be found in the Erlang Design principles document http://www.erlang.org/doc/design_principles/applications.html#id73971
 
 The compiler is implemented as a rebar pluging - the source code for it is in the directory ``/priv/rebar_plugins``.
 
@@ -30,11 +32,8 @@ Usage
 
 Write your literate-erlang files in the directory ``/src_md`` naming them like ``mymodule.erl.md``. Header files are written in ``/include_md`` and named ``myheder.hrl.md``.
 
-Compile them to normal erlang using:
+Compile them to normal erlang and onto beam files using:
 ``rebar literate-compile``
-
-and then compile that using:
-``rebar compile``
 
 Reverse Compiler
 ================
