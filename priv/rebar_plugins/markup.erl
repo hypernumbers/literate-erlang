@@ -14,20 +14,28 @@
 markup(Config, _AppFile) ->
     ErlOpts = rebar_config:get(Config, erl_opts, []),
     SrcDirs = get_src_dirs(ErlOpts),
-    Files = lists:merge([filelib:wildcard(X ++ "/../md/.erl/*.erl") || X <- SrcDirs]),
-    io:format("Files is ~p~n", [Files]),
+    ErlFiles = get_files(SrcDirs, erl),
+    HrlFiles = get_files(SrcDirs, hrl),
+    [ok = markup_to_literate(X, erl) || X <- ErlFiles],
+    [ok = markup_to_literate(X, hrl) || X <- HrlFiles],
+    ok.
+
+get_files(SrcDirs, Type) ->
+    WildCards = case Type of
+                    erl -> "/../src_md/.erl/*.erl";
+                    hrl -> "/../include_md/.hrl/*.hrl"
+                end,
+    Files = lists:merge([filelib:wildcard(X ++ WildCards) || X <- SrcDirs]),
     FilterFun = fun(X) ->
                         not filelib:is_dir(X)
                 end,
-    Files2 = lists:filter(FilterFun, Files),
-    [ok = markup_to_literate(X) || X <- Files2],
-    ok.
+    lists:filter(FilterFun, Files).
 
-markup_to_literate(File) ->
+markup_to_literate(File, Type) ->
     CWD = rebar_utils:get_cwd(),
     {ok, Lines} = read_lines(CWD ++ "/" ++ File),
     Source = make_markdown_source(Lines),
-    ok = write_source(Source, File).
+    ok = write_source(Source, File, Type).
 
 make_markdown_source(Lines) ->
     make_markdown(Lines, []).
@@ -87,9 +95,12 @@ get_src_dirs(ErlOpts) ->
         SrcDirs   -> SrcDirs
     end.
 
-write_source(Source, File) ->
+write_source(Source, File, Type) ->
     File2 = filename:basename(File) ++ ".md",
-    Dir = filename:dirname(File) ++ "/../../md/",
+    Dir = case Type of
+              erl -> filename:dirname(File) ++ "/../../src_md/";
+              hrl -> filename:dirname(File) ++ "/../../include_md/"
+          end,
     ok = filelib:ensure_dir(Dir),
     ok = file:write_file(Dir ++ File2, Source).
 

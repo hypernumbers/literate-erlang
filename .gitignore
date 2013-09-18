@@ -5,5 +5,5 @@ deps
 *.plt
 *~
 ebin/
-md/.erl/*
-md/.erl
+src/
+include/

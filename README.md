@@ -19,7 +19,7 @@ The Literate Erlang, like Literate CoffeeScript is blocks of Markdown interpolat
 
 The Literate Erlang compiler is implemented as a ``rebar`` plugin. For more details of ``rebar`` and its role in Erlang development see https://github.com/rebar/rebar.
 
-Literate Erlang files end with ``.erl.md`` and are stored in the ``/md`` directory alonside the ``/src`` directory  as part of a normal Erlang/OTP file structure. See the section on directory structure in the Erlang Design principles document http://www.erlang.org/doc/design_principles/applications.html#id73971
+Literate Erlang files end with ``.erl.md`` or ``.hrl.md`` and are stored in the ``/src_md`` and ``/include_md`` directories alonside the ``/src`` and ``/include`` directories as part of a normal Erlang/OTP file structure. See the section on directory structure in the Erlang Design principles document http://www.erlang.org/doc/design_principles/applications.html#id73971
 
 The compiler is implemented as a rebar pluging - the source code for it is in the directory ``/priv/rebar_plugins``.
 
@@ -28,7 +28,7 @@ The compiler works by transforming the Literate Erlang to plain erlang and then 
 Usage
 -----
 
-Write your literate-erlang files in the directory ``/md`` naming them like ``mymodule.erl.md``
+Write your literate-erlang files in the directory ``/src_md`` naming them like ``mymodule.erl.md``. Header files are written in ``/include_md`` and named ``myheder.hrl.md``.
 
 Compile them to normal erlang using:
 ``rebar literate-compile``
@@ -49,20 +49,19 @@ Implementation
 
 The reverse compiler implmented as a ``rebar`` plugin called ``markup``.
 
-This turns all files ending ``.erl`` in the ``src/`` into markdown files which are placed in an `md/` directory.
+This turns all files ending ``.erl`` in the ``/src_md/.erl`` directory into markdown files which are placed in an `/src_md` directory and all ``.hrl`` files in ``include_md/.hrl`` directory into ``.hrl.md`` filed in ``/include_md``.
 
 Usage
 -----
 
-The canonical version under version control is the markdown files in the ``md/`` directory. So the first step is to compile them to erlang:
+The canonical version under version control is the markdown files in the ``src_md/`` directory. So the first step is to compile them to erlang:
 ``rebar compile_literate``
 
-Then copy the ``.erl`` files to the directory ``md/.erl`` and edit them there.
+Then copy the ``.erl`` files to the directory ``src_md/.erl`` and the `..hrl`` files to ``/include_md/.hrl`` and edit them there.
 
 The production of working beam files is then:
 ``rebar markup``
 ``rebar literate_compile``
-``rebar compile``
 
 Baby Steps
 ==========

@@ -13,16 +13,19 @@
 compile_literate(Config, _AppFile) ->
     ErlOpts = rebar_config:get(Config, erl_opts, []),
     SrcDirs = get_src_dirs(ErlOpts),
+    ok = clear_down(SrcDirs),
     CompilerOptions = get_compiler_options(ErlOpts),
-    Files = [filelib:wildcard(X ++ "/../md/*.erl.md") || X <- SrcDirs],
-    [ok = compile_file(X, CompilerOptions) || X <- lists:merge(Files)],
+    ErlFiles = [filelib:wildcard(X ++ "/../src_md/*.erl.md") || X <- SrcDirs],
+    [ok = compile_file(X, CompilerOptions, erl) || X <- lists:merge(ErlFiles)],
+    HrlFiles = [filelib:wildcard(X ++ "/../include_md/*.hrl.md") || X <- SrcDirs],
+    [ok = compile_file(X, CompilerOptions, hrl) || X <- lists:merge(HrlFiles)],
     ok.
 
-compile_file(File, CompilerOptions) ->
+compile_file(File, CompilerOptions, Type) ->
     CWD = rebar_utils:get_cwd(),
     {ok, Lines} = read_lines(CWD ++ "/" ++ File),
     Source = make_erlang_source(Lines),
-    ok = write_source_and_compile(Source, File, CompilerOptions).
+    ok = write_source_and_compile(Source, File, CompilerOptions, Type).
 
 make_erlang_source(Lines) ->
     make_erl2(Lines, comment, []).
@@ -41,7 +44,7 @@ make_erl3(["\n" | T], erlang, Acc) ->
 make_erl3(["    " ++ Rest | T], erlang, Acc) ->
     make_erl3(T, erlang, [Rest | Acc]);
 make_erl3(["```" ++ _Rest | T], erlang, Acc) ->
-    make_erl2(T, comment, ["\n" | Acc]);
+    make_erl2(T, comment, ["%%%```\n" | Acc]);
 %% Oops, not indented? lets comment out then
 make_erl3(List, erlang, Acc) ->
     make_erl2(List, comment, Acc).
@@ -68,18 +71,25 @@ get_src_dirs(ErlOpts) ->
 get_compiler_options(ErlOpts) ->
     proplists:delete(src_dirs, ErlOpts).
 
-write_source_and_compile(Source, File, CompilerOptions) ->
+write_source_and_compile(Source, File, CompilerOptions, Type) ->
     File2 = filename:basename(filename:rootname(File)),
     Dir = filename:dirname(File),
     NewCompOpts = adjust_output_dirs(CompilerOptions, Dir),
-    Dir2 = Dir  ++ "/../src/",
+    Dir2 = case Type of
+               erl -> Dir  ++ "/../src/";
+               hrl -> Dir  ++ "/../include/"
+           end,
     ok = filelib:ensure_dir(Dir2),
     ok = file:write_file(Dir2 ++ File2, Source),
-    case compile:file(Dir2 ++ File2, NewCompOpts) of
-        {ok, _} -> ok;
-        error   -> io:format("Compile of ~p failed~n", [File])
-    end,
-    ok.
+    %% now compile the .erl files
+    case Type of
+        erl -> case compile:file(Dir2 ++ File2, NewCompOpts) of
+                   {ok, _} -> ok;
+                   error   -> io:format("Compile of ~p failed~n", [File])
+               end,
+               ok;
+        hrl -> ok
+    end.
 
 adjust_output_dirs(CompilerOptions, Dir) ->
 
@@ -92,3 +102,11 @@ adjust_output_dirs(CompilerOptions, Dir) ->
             CompilerOptions
     end.
 
+clear_down(SrcDirs) ->
+    WildCards = lists:merge([[
+                              X ++ "/../include/*",
+                              X ++ "/../src/*"
+                             ] || X <- SrcDirs]),
+    Files = lists:merge([filelib:wildcard(X) || X <- WildCards]),
+    [ok = file:delete(X) || X <- Files],
+    ok.
