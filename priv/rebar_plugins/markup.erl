@@ -42,14 +42,12 @@ make_markdown_source(Lines) ->
 
 make_markdown([], Acc) ->
     lists:flatten(lists:reverse(Acc));
-%%% preserve (and normalise) the erlang markups
-%% order matters!
 make_markdown(["%%%```erlang" ++ _Rest | T], Acc) ->
-    make_markdown(T, ["%%%```erlang\n" | Acc]);
+    make_erlang(T, ["```erlang\n" | Acc]);
 make_markdown(["%%```erlang" ++ _Rest | T], Acc) ->
-    make_markdown(T, ["%%%```erlang\n" | Acc]);
+    make_erlang(T, ["```erlang\n" | Acc]);
 make_markdown(["%```erlang" ++ _Rest | T], Acc) ->
-    make_markdown(T, ["%%%```erlang\n" | Acc]);
+    make_erlang(T, ["```erlang\n" | Acc]);
 %% order matters!
 make_markdown(["%%%" ++ Rest | T], Acc) ->
     make_markdown(T, [Rest | Acc]);
@@ -68,7 +66,7 @@ make_erlang(["\n" | T], Acc) ->
     make_erlang(T, ["\n" | Acc]);
 %% order matters!
 make_erlang(["%%%" ++ Rest | T], Acc) ->
-    make_markdown(T, [Rest, "````\n" | Acc]);
+    make_markdown(T, [Rest, "```\n" | Acc]);
 make_erlang(["%%" ++ Rest | T], Acc) ->
     make_markdown(T, [Rest, "```\n" | Acc]);
 make_erlang(["%" ++ Rest | T], Acc) ->

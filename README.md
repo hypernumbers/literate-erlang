@@ -32,8 +32,13 @@ Usage
 
 Write your literate-erlang files in the directory ``/src_md`` naming them like ``mymodule.erl.md``. Header files are written in ``/include_md`` and named ``myheder.hrl.md``.
 
-Compile them to normal erlang and onto beam files using:
+Compile them to normal erlang:
 ``rebar literate-compile``
+
+and then compile that up as per normal
+``rebar compile``
+
+**Note:** you should put your rebar ``project.app.src`` file in ``/src_md`` from where will be copied over to ``src/``.
 
 Reverse Compiler
 ================

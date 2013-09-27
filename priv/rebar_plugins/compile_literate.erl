@@ -81,15 +81,11 @@ write_source_and_compile(Source, File, CompilerOptions, Type) ->
            end,
     ok = filelib:ensure_dir(Dir2),
     ok = file:write_file(Dir2 ++ File2, Source),
-    %% now compile the .erl files
     case Type of
-        erl -> case compile:file(Dir2 ++ File2, NewCompOpts) of
-                   {ok, _} -> ok;
-                   error   -> io:format("Compile of ~p failed~n", [File])
-               end,
-               ok;
+        erl -> os:cmd("cp " ++ Dir ++ "/*.app.src " ++ Dir2);
         hrl -> ok
-    end.
+    end,
+    ok.
 
 adjust_output_dirs(CompilerOptions, Dir) ->
 
